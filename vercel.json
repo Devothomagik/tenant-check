@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/scan.ts": { "maxDuration": 15 }
+  },
+  "rewrites": [{ "source": "/api/probe", "destination": "/api/scan" }],
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}
