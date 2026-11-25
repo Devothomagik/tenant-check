@@ -1,5 +1,7 @@
 {
-  "name": "tenantprobe",
+  "name": "tenant-check",
+  "description": "Read-only check of a domain's Microsoft 365 / Entra ID and email authentication setup.",
+  "author": "Othmane Nejjai",
   "private": true,
   "license": "MIT",
   "version": "1.0.0",
