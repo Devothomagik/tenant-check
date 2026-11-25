@@ -1,47 +1,33 @@
-# TenantProbe
+# tenant-check
 
-Passive, read-only inspection of any domain's Microsoft 365 / Entra ID and email-authentication posture.
+I built this to answer a question I kept asking by hand: how is this domain set up on Microsoft 365 / Entra ID, and is its email authentication any good? Type in a domain and it looks everything up and marks each check PASS, WARN or MISSING, with a suggested fix next to it.
 
-For authorized security assessments only; it only reads public DNS and public endpoints.
+It is read-only. It only uses public DNS and Microsoft's public login metadata, and it doesn't store anything. Please only point it at domains you own or are authorized to assess.
 
-Enter a domain and TenantProbe reports:
+## What it checks
 
-- **Entra ID / OIDC** — tenant ID, region, cloud and issuer from the public OpenID discovery document
-- **Identity & federation** — managed vs. federated namespace, brand name, federation endpoint (`getuserrealm`)
-- **Microsoft 365** — initial `onmicrosoft.com` tenant, DKIM `selector1` / `selector2`
-- **SPF & DMARC** — recursive SPF lookup counter (RFC 7208 limit of 10), DMARC enforcement level
-- **Service records** — MX gateway, Intune enrollment/registration, Autodiscover, MTA-STS, TLS-RPT
+- Tenant info from the public OpenID discovery document (tenant ID, region, cloud, issuer)
+- Whether the domain is managed or federated, via getuserrealm, plus the brand name and federation URL
+- The initial onmicrosoft.com tenant and the DKIM selector1 / selector2 CNAMEs
+- SPF, including a recursive count of DNS lookups against the limit of 10, and the DMARC policy
+- MX records (and a guess at the mail gateway), Intune enrollment and registration, Autodiscover, MTA-STS and TLS-RPT
 
-Every row shows PASS / WARN / MISSING with a copyable fix, plus the equivalent `dig` / `curl` commands, a Markdown report and raw JSON.
+Each result also shows the equivalent dig / curl commands so you can double-check it yourself, and you can copy the whole thing as a Markdown report or raw JSON.
 
-## Privacy
+## How it works
 
-TenantProbe only reads public DNS and public Microsoft login metadata. Nothing is stored. DNS queries go from your browser to Cloudflare DNS-over-HTTPS; the two Microsoft endpoints are fetched by a small server proxy (`/api/probe`) because they do not allow cross-origin requests.
+DNS queries go straight from the browser to Cloudflare's DNS-over-HTTPS. The two Microsoft login endpoints don't allow cross-origin requests, so those go through a small server route, /api/probe.
 
-## Run locally
-
-```sh
-npm install
-npm run dev
-```
-
-## Build & deploy
+## Running it
 
 ```sh
-npm run build
+bun install
+bun run dev
 ```
 
-The build targets edge runtimes (Cloudflare Workers by default). A standalone Vercel Edge function is also included in `api/scan.ts` with `vercel.json`.
+Tests are run with bun run test. The build (bun run build) targets Cloudflare Workers by default. There's also a Vercel edge function in api/scan.ts with a vercel.json if you'd rather deploy there.
 
-## Tests
-
-```sh
-npm test
-```
-
-## Stack
-
-TanStack Start, React, TypeScript, Tailwind CSS.
+It's built with TanStack Start, React, TypeScript and Tailwind.
 
 ## License
 
